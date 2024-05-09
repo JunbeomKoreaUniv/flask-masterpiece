@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ song.name }} - {{ song.singer }}<br>
+평균★{{ song.average_rate|round2 }}
+<br><br>
+{{ song.user_name }}에 의해 {{ song.write_date|datetime }}에 추가됨.<br>
+------------------------------------<br>
+<후기/평점>
+<br><br>
+{% for review in song.review_set %}
+{% if g.user.user_name==review.user_name %}
+[내 후기 및 평점]<br> {{ review.content }} - ★{{ review.rate }}
+<a href="{{ url_for('review.edit', review_id=review.id) }}">후기 수정</a>
+<a href="{{ url_for('review.delete', review_id=review.id) }}" class="delete">후기 삭제</a>
+<br><br>
+{% endif %}
+{% endfor %}
+
+{% for review in song.review_set %}
+- {{ review.content }} - ★{{ review.rate }}     ({{ review.user_name }}에 의해 {{ review.write_date|datetime }}에 작성됨)
+<br><br>
+{% endfor %}
+
+{% if not g.user.user_name in song.review_set|map(attribute='user_name') %}
+    <a href="{{ url_for('review.add', song_id=song.id) }}">평점 부여하고 후기 작성하기</a>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+</script>
+{% endblock %}

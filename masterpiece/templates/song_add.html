@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post">
+    <!--오류표시 start-->
+    {% if form.errors %}
+    <div>
+        {% for field, errors in form.errors.items() %}
+        <strong>{{ form[field].label }}</strong>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!--오류표시 end-->
+    {{ form.csrf_token }}
+    <div>
+        <label for="name">곡명</label>
+        <input type="text" class="form-control" name="name" id="name"
+            value="{{ form.name.data or '' }}">
+    </div>
+    <div>
+        <label for="singer">가수</label>
+        <input type="text" class="form-control" name="singer" id="singer"
+            value="{{ form.singer.data or '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">곡 등록하기</button>
+</form>
+{% endblock %}

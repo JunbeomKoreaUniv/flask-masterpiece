@@ -1,0 +1,7 @@
+ <!-- flash 오류 -->
+ {% for message in get_flashed_messages() %}
+ <div class="alert alert-danger" role="alert">
+     {{ message }}
+ </div>
+ {% endfor %}
+ <a href="{{ url_for('song.detail',song_id=song_id) }}">원래 페이지로 돌아가기</a>

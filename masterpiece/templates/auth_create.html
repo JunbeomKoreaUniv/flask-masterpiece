@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post">
+    <!--오류표시 start-->
+    {% if form.errors %}
+    <div>
+        {% for field, errors in form.errors.items() %}
+        <strong>{{ form[field].label }}</strong>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    <!--오류표시 end-->
+    {{ form.csrf_token }}
+
+    <div>
+        <lable for="user_email_id">아이디(이메일형식)</lable>
+        <input type="text" class="form=control" name="user_email_id" id="user_email_id"
+            value="{{ form.user_email_id.data or '' }}">
+    </div>
+    <div>
+        <lable for="user_name">닉네임</lable>
+        <input type="text" class="form=control" name="user_name" id="user_name"
+            value="{{ form.user_name.data or '' }}">
+    </div>
+    <div>
+        <lable for="user_password1">비밀번호</lable>
+        <input type="password" class="form=control" name="password1" id="password1"
+            value="{{ form.password1.data or '' }}">
+    </div>
+    <div>
+        <lable for="user_password2">비밀번호 확인</lable>
+        <input type="password" class="form=control" name="password2" id="password2"
+            value="{{ form.password2.data or '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">회원가입하기</button>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post">
+    <!--오류표시 start-->
+    {% if form.errors %}
+    <div>
+        {% for field, errors in form.errors.items() %}
+        <strong>{{ form[field].label }}</strong>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    <!--오류표시 end-->
+    {{ form.csrf_token }}
+
+    <div>
+        <lable for="user_email_id">아이디(이메일형식)</lable>
+        <input type="text" class="form=control" name="user_email_id" id="user_email_id"
+            value="{{ form.user_email_id.data or '' }}">
+    </div>
+    <div>
+        <lable for="password">비밀번호</lable>
+        <input type="password" class="form=control" name="password" id="password"
+            value="{{ form.password.data or '' }}">
+    </div>
+    <button type="submit" class="btn btn-primary">로그인</button>
+</form>
+{% endblock %}

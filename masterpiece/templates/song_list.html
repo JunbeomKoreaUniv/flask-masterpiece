@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{{ search['tracks']['items'][0]['name'] }} , {{ search['tracks']['items'][0]['artists'][0]['name'] }}<br>
+{{ search['tracks']['items'][1]['name'] }} , {{ search['tracks']['items'][1]['artists'][0]['name'] }}<br>
+{{ search['tracks']['items'][2]['name'] }} , {{ search['tracks']['items'][2]['artists'][0]['name'] }}<br>
+{{ search['tracks']['items'][0]['artists'][0] }}
+
+{% if song_list %}
+    <ul>
+        {% for song in song_list.items %}
+        <li><a href="detail/{{ song.id }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}</li>
+        <br>
+        {% endfor %}
+    </ul>
+{% endif %}
+<!-- 페이징처리 시작 -->
+<ul class="pagination justify-content-center">
+    <!-- 이전페이지 -->
+    {% if song_list.has_prev %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ song_list.prev_num }}">이전</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
+    </li>
+    {% endif %}
+    <!-- 페이지번호 -->
+    {% for page_num in song_list.iter_pages() %}
+    {% if page_num %}
+    {% if page_num != song_list.page %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+    </li>
+    {% else %}
+    <li class="page-item active" aria-current="page">
+        <a class="page-link" href="javascript:void(0)">{{ page_num }}</a>
+    </li>
+    {% endif %}
+    {% else %}
+    <li class="disabled">
+        <a class="page-link" href="javascript:void(0)">...</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+    <!-- 다음페이지 -->
+    {% if song_list.has_next %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ song_list.next_num }}">다음</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
+    </li>
+    {% endif %}
+</ul>
+<!-- 페이징처리 끝 -->
+<a href="{{ url_for('song.add') }}">노래 추가하기</a>
+{% endblock %}
