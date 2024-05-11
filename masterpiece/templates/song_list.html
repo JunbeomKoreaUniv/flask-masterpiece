@@ -1,15 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{{ search['tracks']['items'][0]['name'] }} , {{ search['tracks']['items'][0]['artists'][0]['name'] }}<br>
-{{ search['tracks']['items'][1]['name'] }} , {{ search['tracks']['items'][1]['artists'][0]['name'] }}<br>
-{{ search['tracks']['items'][2]['name'] }} , {{ search['tracks']['items'][2]['artists'][0]['name'] }}<br>
-{{ search['tracks']['items'][0]['artists'][0] }}
+<div class="input-group">
+    <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="btn_search">검색</button>
+    </div>
+</div>
+------------------------------------------------------
+<br>
+<!-- 검색결과 출력 시작 -->
+{% if search %}
+{% for i in range(10) %}
+<!-- 검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 있으면 -->
+{% if search['tracks']['items'][i]['id'] in song_list.items|map(attribute='spotify_id') %} 
+검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 있음.(검색한 노래가 MasterPiece데이터베이스에 존재)
+{% for song in song_list.items %}
+{% if search['tracks']['items'][i]['id'] == song.spotify_id %}
+<li><a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}</li>
+{% endif %}
+{% endfor %}
+{% else %}
+<li><a href="{{ url_for('song.add', spotify_id=search['tracks']['items'][i]['id'], name=search['tracks']['items'][i]['name'], singer=search['tracks']['items'][i]['artists'][0]['name']) }}">{{ search['tracks']['items'][i]['name'] }}, {{ search['tracks']['items'][i]['artists'][0]['name'] }}</a></li>
+평균★None/5.0(아직 평가되지 않았습니다)<br>
+평가수 0<br>
+{% endif %}
+<br>
+{% endfor %}
+{% endif %}
+<!-- 검색결과 출력 끝 -->
 
 {% if song_list %}
     <ul>
         {% for song in song_list.items %}
-        <li><a href="detail/{{ song.id }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}</li>
+        <li><a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}</li>
         <br>
         {% endfor %}
     </ul>
@@ -19,7 +43,7 @@
     <!-- 이전페이지 -->
     {% if song_list.has_prev %}
     <li class="page-item">
-        <a class="page-link" href="?page={{ song_list.prev_num }}">이전</a>
+        <a class="page-link" data-page="{{ song_list.prev_num }}" href="javascript:void(0)">이전</a>
     </li>
     {% else %}
     <li class="page-item disabled">
@@ -31,7 +55,7 @@
     {% if page_num %}
     {% if page_num != song_list.page %}
     <li class="page-item">
-        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        <a class="page-link" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
     </li>
     {% else %}
     <li class="page-item active" aria-current="page">
@@ -47,7 +71,7 @@
     <!-- 다음페이지 -->
     {% if song_list.has_next %}
     <li class="page-item">
-        <a class="page-link" href="?page={{ song_list.next_num }}">다음</a>
+        <a class="page-link" data-page="{{ song_list.next_num }}" href="javascript:void(0)">다음</a>
     </li>
     {% else %}
     <li class="page-item disabled">
@@ -56,5 +80,25 @@
     {% endif %}
 </ul>
 <!-- 페이징처리 끝 -->
-<a href="{{ url_for('song.add') }}">노래 추가하기</a>
+<form id="searchForm" method="get" action="{{ url_for('song._list') }}">
+    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+</form>
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+const btn_search = document.getElementById("btn_search");
+btn_search.addEventListener('click', function() {
+    document.getElementById('kw').value = document.getElementById('search_kw').value;
+    document.getElementById('page').value = 1;  // 검색버튼을 클릭할 경우 1페이지부터 조회한다.
+    document.getElementById('searchForm').submit();
+});
+</script>
 {% endblock %}

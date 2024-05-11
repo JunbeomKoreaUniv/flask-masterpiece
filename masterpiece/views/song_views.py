@@ -22,24 +22,38 @@ bp = Blueprint('song', __name__, url_prefix='/song')
 @bp.route('/')
 def _list():
     page = request.args.get('page', type=int, default=1)  # 페이지
-    song_list = Song.query.order_by(Song.write_date.desc())
+    kw = request.args.get('kw', type=str, default='') # 검색어
+    song_list = Song.query.order_by(Song.id.desc())
     song_list = song_list.paginate(page=page, per_page=5)
-    search = sp.search(q="아우성", limit=3, type="track", market='KR')
-    return render_template("song_list.html", song_list=song_list, search=search)
+    if kw:
+        search = sp.search(q=kw, limit=10, type="track", market='KR')
+        return render_template("song_list.html", song_list=song_list, search=search)
+    else:
+        return render_template("song_list.html", song_list=song_list)
 
 @bp.route('/detail/<int:song_id>/')
 def detail(song_id):
     song = Song.query.get(song_id)
     return render_template("song_detail.html", song=song)
 
-@bp.route('/add/', methods=('GET', 'POST'))
+@bp.route('/add/')
 @login_required
 def add():
-    form = SongForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        user_name = User.query.get(session['user_id']).user_name
-        song = Song(name=form.name.data, singer=form.singer.data, user_name=user_name, write_date = datetime.now())
+    spotify_id = request.args.get('spotify_id', type=str)
+    name = request.args.get('name', type=str)
+    singer = request.args.get('singer', type=str)
+    if spotify_id and name and singer:
+        song = Song(spotify_id=spotify_id, name=name, singer=singer, average_rate=None)
         db.session.add(song)
         db.session.commit()
-        return redirect(url_for('main.index'))
-    return render_template("song_add.html", form=form) 
+        added_song = Song.query.order_by(Song.id.desc()).first()
+        return redirect(url_for('song.detail', song_id=added_song.id))
+    return render_template("base.html") #오류나면 베이스템플릿만 출력 (테스트용)
+    # form = SongForm()
+    # if request.method == 'POST' and form.validate_on_submit():
+    #     user_name = User.query.get(session['user_id']).user_name
+    #     song = Song(name=form.name.data, singer=form.singer.data, user_name=user_name, write_date = datetime.now())
+    #     db.session.add(song)
+    #     db.session.commit()
+    #     return redirect(url_for('main.index'))
+    # return render_template("song_add.html", form=form) 
