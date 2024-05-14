@@ -1,6 +1,7 @@
 from masterpiece.forms import ReviewForm
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, g
 from datetime import datetime
+import math
 
 from masterpiece import db
 
@@ -30,6 +31,7 @@ def add(song_id):
             review_count = len(song.review_set)
             song.average_rate = ((review_count-1) * song.average_rate + form.rate.data) / review_count
             db.session.commit()
+            update_song_score()  # 이벤트 핸들러 호출
             return redirect(url_for('song.detail', song_id=song_id))
     else:
         return render_template("review_add.html", form=form,song=song)
@@ -48,6 +50,7 @@ def delete(review_id):
         song.average_rate = ((review_count) * song.average_rate - review.rate) / (review_count-1)
         db.session.delete(review)
         db.session.commit()
+        update_song_score()  # 이벤트 핸들러 호출
     return redirect(url_for('song.detail', song_id=song_id))
 
 @bp.route('/edit/<int:review_id>', methods=('GET', 'POST'))
@@ -65,8 +68,29 @@ def edit(review_id):
             review_count = len(song.review_set)
             song.average_rate = ((review_count) * song.average_rate -session['previous_rate'] + review.rate) / (review_count)
             db.session.commit()
+            update_song_score()  # 이벤트 핸들러 호출
             return redirect(url_for('song.detail', song_id=review.song.id))
     else:
         form = ReviewForm(obj=review)
         session['previous_rate']=review.rate
         return render_template('review_add.html', form=form)
+    
+def update_song_score(*args):
+    # 모든 Song 인스턴스에 대해 score 값을 업데이트
+    total_reviews = Review.query.count()
+    total_song_with_reviews = Song.query.join(Review).distinct().count()
+    all_songs = Song.query.all()
+    for song in all_songs:
+        if song.average_rate:
+            total_reviews_in_song = len(song.review_set)
+            alpha = total_reviews_in_song / total_reviews - 1 / total_song_with_reviews
+            flag = 1 if alpha>0 else -1
+            if alpha == 0: #알파가 0이면 정규화가 불가능(거듭제곱이 불가함)하므로 예외처리
+                normalized_alpha = 0
+            else: #알파 정규화
+                normalized_alpha = (abs(alpha)**math.log(total_reviews_in_song)) * flag
+            score = song.average_rate + normalized_alpha
+            song.masterpiece_score = score
+            print(f"Song name:{song.name}, alpha:{alpha}, normalized_alpha:{normalized_alpha}")
+            db.session.add(song)
+            db.session.commit()

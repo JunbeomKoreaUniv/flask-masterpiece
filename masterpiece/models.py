@@ -1,5 +1,8 @@
 from masterpiece import db
+from sqlalchemy import event
 from datetime import datetime
+
+import math
 
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -7,9 +10,9 @@ class Song(db.Model):
     name = db.Column(db.String(200), nullable=False)
     singer = db.Column(db.String(200), nullable=False)
     average_rate = db.Column(db.Float, nullable=True, server_default='0')
-    # write_date = db.Column(db.DateTime(), nullable=True, server_default='datetime.now()')
-    # user_name = db.Column(db.String(200), db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    # user = db.relationship('User', backref=db.backref('Song_set'))
+    masterpiece_score = db.Column(db.Float)
+    # review_set 연동돼있음.
+#Song 모델 속성 추가하거나 삭제시 song_views의 _list뷰함수의 query의 SELECT대상 수정해야함.
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,3 +31,4 @@ class User(db.Model):
     user_email_id = db.Column(db.String(200), unique=True, nullable=False)
     user_name = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    # Review_set 연동돼있음.

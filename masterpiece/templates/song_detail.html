@@ -2,9 +2,8 @@
 {% block content %}
 {{ song.name }} - {{ song.singer }}<br>
 평균★{{ song.average_rate|round2 }}
-<br><br>
-{{ song.user_name }}에 의해 {{ song.write_date|datetime }}에 추가됨.<br>
-------------------------------------<br>
+<br>
+----------------------------------------------------<br>
 <후기/평점>
 <br><br>
 {% for review in song.review_set %}

@@ -30,14 +30,22 @@
 {% endif %}
 <!-- 검색결과 출력 끝 -->
 
+<!-- 최근 평가된 노래순서로 출력 시작 -->
 {% if song_list %}
+[Recent Rated Musics]
     <ul>
         {% for song in song_list.items %}
-        <li><a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}</li>
+        <li>
+            <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a>
+            <br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song[6] }}<br>
+            마스터피스 점수{{ song.masterpiece_score }}
+        </li>
         <br>
         {% endfor %}
     </ul>
 {% endif %}
+<!-- 최근 평가된 노래순서로 출력 끝 -->
+
 <!-- 페이징처리 시작 -->
 <ul class="pagination justify-content-center">
     <!-- 이전페이지 -->
@@ -80,6 +88,23 @@
     {% endif %}
 </ul>
 <!-- 페이징처리 끝 -->
+
+<!-- 마스터피스 랭킹 순서로 노래 출력 시작 -->
+{% if song_ranking %}
+[MasterPiece Ranking]
+    <ul>
+        {% for song in song_ranking %}
+        <li>
+            <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a>
+            <br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}<br>
+            마스터피스 점수{{ song.masterpiece_score }}
+        </li>
+        <br>
+        {% endfor %}
+    </ul>
+{% endif %}
+<!-- 마스터피스 랭킹 순서로 노래 출력 끝 -->
+
 <form id="searchForm" method="get" action="{{ url_for('song._list') }}">
     <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
     <input type="hidden" id="page" name="page" value="{{ page }}">

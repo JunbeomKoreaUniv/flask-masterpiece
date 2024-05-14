@@ -1,9 +1,10 @@
 from flask import Blueprint, url_for, render_template, request, session
 from werkzeug.utils import redirect
+from sqlalchemy import func, desc
 from datetime import datetime
 
 from masterpiece import db
-from masterpiece.models import Song, User
+from masterpiece.models import Song, Review, User
 from masterpiece.forms import SongForm, ReviewForm
 from .auth_views import login_required
 
@@ -23,13 +24,19 @@ bp = Blueprint('song', __name__, url_prefix='/song')
 def _list():
     page = request.args.get('page', type=int, default=1)  # 페이지
     kw = request.args.get('kw', type=str, default='') # 검색어
-    song_list = Song.query.order_by(Song.id.desc())
-    song_list = song_list.paginate(page=page, per_page=5)
+
+    # 최근 리뷰가 등록된 순서로 정렬하여 song_list에 가장 최근의 리뷰날짜와 함께 저장
+    query = (db.session.query(Song.id, Song.spotify_id, Song.name, Song.singer, Song.average_rate, Song.masterpiece_score, func.count(Review.id), Review.write_date).join(Review).group_by(Song.id).having(Review.write_date == func.max(Review.write_date)).order_by(desc(Review.write_date)))
+    song_list = query.paginate(page=page, per_page=5)
+
+    # 자체 음악 랭킹 함수 코드를 여기에 작성
+    song_ranking = (db.session.query(Song).filter(Song.average_rate != None).order_by(desc(Song.masterpiece_score)))
+
     if kw:
         search = sp.search(q=kw, limit=10, type="track", market='KR')
-        return render_template("song_list.html", song_list=song_list, search=search)
+        return render_template("song_list.html", song_list=song_list, song_ranking=song_ranking, search=search)
     else:
-        return render_template("song_list.html", song_list=song_list)
+        return render_template("song_list.html", song_list=song_list, song_ranking=song_ranking)
 
 @bp.route('/detail/<int:song_id>/')
 def detail(song_id):
@@ -48,12 +55,4 @@ def add():
         db.session.commit()
         added_song = Song.query.order_by(Song.id.desc()).first()
         return redirect(url_for('song.detail', song_id=added_song.id))
-    return render_template("base.html") #오류나면 베이스템플릿만 출력 (테스트용)
-    # form = SongForm()
-    # if request.method == 'POST' and form.validate_on_submit():
-    #     user_name = User.query.get(session['user_id']).user_name
-    #     song = Song(name=form.name.data, singer=form.singer.data, user_name=user_name, write_date = datetime.now())
-    #     db.session.add(song)
-    #     db.session.commit()
-    #     return redirect(url_for('main.index'))
-    # return render_template("song_add.html", form=form) 
+    return render_template("base.html") #오류나면 베이스템플릿만 출력 
