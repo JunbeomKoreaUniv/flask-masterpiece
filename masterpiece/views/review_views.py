@@ -31,7 +31,7 @@ def add(song_id):
             review_count = len(song.review_set)
             song.average_rate = ((review_count-1) * song.average_rate + form.rate.data) / review_count
             db.session.commit()
-            update_song_score()  # 이벤트 핸들러 호출
+            update_song_score()  # 마스터피스 점수 업데이트
             return redirect(url_for('song.detail', song_id=song_id))
     else:
         return render_template("review_add.html", form=form,song=song)
@@ -50,7 +50,7 @@ def delete(review_id):
         song.average_rate = ((review_count) * song.average_rate - review.rate) / (review_count-1)
         db.session.delete(review)
         db.session.commit()
-        update_song_score()  # 이벤트 핸들러 호출
+        update_song_score()  # 마스터피스 점수 업데이트
     return redirect(url_for('song.detail', song_id=song_id))
 
 @bp.route('/edit/<int:review_id>', methods=('GET', 'POST'))
@@ -68,7 +68,7 @@ def edit(review_id):
             review_count = len(song.review_set)
             song.average_rate = ((review_count) * song.average_rate -session['previous_rate'] + review.rate) / (review_count)
             db.session.commit()
-            update_song_score()  # 이벤트 핸들러 호출
+            update_song_score()  # 마스터피스 점수 업데이트
             return redirect(url_for('song.detail', song_id=review.song.id))
     else:
         form = ReviewForm(obj=review)

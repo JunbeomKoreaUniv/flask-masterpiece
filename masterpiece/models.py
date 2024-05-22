@@ -1,9 +1,7 @@
 from masterpiece import db
-from sqlalchemy import event
 from datetime import datetime
 
-import math
-
+#Song 모델 속성 추가하거나 삭제시 song_views의 _list뷰함수의 query의 SELECT대상 수정해야함.
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     spotify_id = db.Column(db.String(200), nullable=False, unique=True)
@@ -11,8 +9,8 @@ class Song(db.Model):
     singer = db.Column(db.String(200), nullable=False)
     average_rate = db.Column(db.Float, nullable=True, server_default='0')
     masterpiece_score = db.Column(db.Float)
+    image_url = db.Column(db.String(300), nullable=True, server_default='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg')
     # review_set 연동돼있음.
-#Song 모델 속성 추가하거나 삭제시 song_views의 _list뷰함수의 query의 SELECT대상 수정해야함.
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
