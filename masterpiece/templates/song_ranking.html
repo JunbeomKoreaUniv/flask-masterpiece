@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 마스터피스 랭킹 순서로 노래 출력 시작 -->
+{% if song_ranking %}
+[MasterPiece Ranking]
+    <ul>
+        {% for song in song_ranking.items %}
+        <li>
+            마스터피스 랭킹 '{{ (page-1)*10 + loop.index }}위'<br>
+            <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a>
+            <br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}<br>
+            마스터피스 스코어 {{ song.masterpiece_score }}<br>
+            <img src="{{ song.image_url }}" width="100" height="100"><br>
+        </li>
+        <br>
+        {% endfor %}
+    </ul>
+{% endif %}
+<!-- 마스터피스 랭킹 순서로 노래 출력 끝 -->
+
+<!-- 페이징처리 시작 -->
+<ul class="pagination justify-content-center">
+    <!-- 이전페이지 -->
+    {% if song_ranking.has_prev %}
+    <li class="page-item" style="list-style: none;">
+        <a class="page-link" data-page="{{ song_ranking.prev_num }}" href="javascript:void(0)">이전</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled" style="list-style: none;">
+        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
+    </li>
+    {% endif %}
+    <!-- 페이지번호 -->
+    {% for page_num in song_ranking.iter_pages() %}
+    {% if page_num %}
+    {% if page_num != song_ranking.page %}
+    <li class="page-item" style="list-style: none;">
+        <a class="page-link" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
+    </li>
+    {% else %}
+    <li class="page-item active" aria-current="page" style="list-style: none;">
+        <a class="page-link" href="javascript:void(0)">{{ page_num }}</a>
+    </li>
+    {% endif %}
+    {% else %}
+    <li class="disabled" style="list-style: none;">
+        <a class="page-link" href="javascript:void(0)">...</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+    <!-- 다음페이지 -->
+    {% if song_ranking.has_next %}
+    <li class="page-item" style="list-style: none;">
+        <a class="page-link" data-page="{{ song_ranking.next_num }}" href="javascript:void(0)">다음</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled" style="list-style: none;">
+        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
+    </li>
+    {% endif %}
+</ul>
+<form id="pageForm" method="get" action="{{ url_for('song.ranking') }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+</form>
+{% endblock %}
+
+{% block script %}
+<script type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('pageForm').submit();
+    });
+});
+</script>
+{% endblock %}
