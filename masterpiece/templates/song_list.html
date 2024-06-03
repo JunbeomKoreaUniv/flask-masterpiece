@@ -11,108 +11,111 @@
 <br>
 <!-- 검색결과 출력 시작 -->
 {% if search %}
-{% for i in range(50) %}
-{% if search['tracks']['items'][i] %}
-<!-- 검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 있으면 -->
-{% if search['tracks']['items'][i]['id'] in songs_spotify_id %} 
-{% for song in songs %}
-{% if search['tracks']['items'][i]['id'] == song.spotify_id %}
-<li><a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song[7] }}</li>
-{% endif %}
-{% endfor %}
-<!-- 검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 없으면 -->
-{% else %}
-<li><a href="{{ url_for('song.add', spotify_id=search['tracks']['items'][i]['id'], name=search['tracks']['items'][i]['name'], singer=search['tracks']['items'][i]['artists'][0]['name'], image_url=search['tracks']['items'][i]['album']['images'][0]['url'], spotify_url=search['tracks']['items'][i]['external_urls']['spotify']) }}">{{ search['tracks']['items'][i]['name'] }}, {{ search['tracks']['items'][i]['artists'][0]['name'] }}</a></li>
-평균★None/5.0(아직 평가되지 않았습니다)<br>
-평가수 0<br>
-{% endif %}
-<img src="{{ search['tracks']['items'][i]['album']['images'][0]['url'] }}" width="100" height="100"><br>
-<a href="{{ search['tracks']['items'][i]['external_urls']['spotify'] }}">스포티파이 링크</a><br><br>
-{% endif %}
-{% endfor %}
+<div class="song-container">
+    {% for i in range(50) %}
+    {% if search['tracks']['items'][i] %}
+    <!-- 검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 있으면 -->
+    {% if search['tracks']['items'][i]['id'] in songs_spotify_id %} 
+    {% for song in songs %}
+    {% if search['tracks']['items'][i]['id'] == song.spotify_id %}
+    <div class="song-item">
+        <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song[7] }}
+        <img src="{{ search['tracks']['items'][i]['album']['images'][0]['url'] }}" width="100" height="100"><br>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <!-- 검색한 노래의 id가 Song모델의 인스턴스 중 spotify_id속성에 없으면 -->
+    {% else %}
+    {% if search['tracks']['items'][i]['album']['images'][0] %}
+    <div class="song-item">
+        <a href="{{ url_for('song.add', spotify_id=search['tracks']['items'][i]['id'], name=search['tracks']['items'][i]['name'], singer=search['tracks']['items'][i]['artists'][0]['name'], image_url=search['tracks']['items'][i]['album']['images'][0]['url'], spotify_url=search['tracks']['items'][i]['external_urls']['spotify']) }}">{{ search['tracks']['items'][i]['name'] }}, {{ search['tracks']['items'][i]['artists'][0]['name'] }}</a><br>
+        평균★None/5.0(아직 평가되지 않았습니다)<br>
+        평가수 0<br>
+        <img src="{{ search['tracks']['items'][i]['album']['images'][0]['url'] }}" width="100" height="100"><br>
+    </div>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+</div>
 <!-- 검색결과 출력 끝 -->
 {% else %}
 <!-- 최근 평가된 노래순서로 출력 시작 -->
 {% if song_list %}
 [Recent Rated Musics]
-    <ul>
-        {% for song in song_list.items %}
-        <li>
-            <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a>
-            <br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song[7] }}<br>
-            마스터피스 점수{{ song.masterpiece_score }}<br>
-            <img src="{{ song.image_url }}" width="100" height="100"><br>
-        </li>
-        <br>
-        {% endfor %}
-    </ul>
+<div class="song-container">
+    {% for song in song_list.items %}
+    <div class="song-item">
+        <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song[7] }}<br>
+        <img src="{{ song.image_url }}" width="100" height="100"><br>
+    </div>
+    {% endfor %}
+</div>
 {% endif %}
 <!-- 최근 평가된 노래순서로 출력 끝 -->
 
 <!-- 페이징처리 시작 -->
-<ul class="pagination justify-content-center">
-    <!-- 이전페이지 -->
-    {% if song_list.has_prev %}
-    <li class="page-item">
-        <a class="page-link" data-page="{{ song_list.prev_num }}" href="javascript:void(0)">이전</a>
-    </li>
-    {% else %}
-    <li class="page-item disabled">
-        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
-    </li>
-    {% endif %}
-    <!-- 페이지번호 -->
-    {% for page_num in song_list.iter_pages() %}
-    {% if page_num %}
-    {% if page_num != song_list.page %}
-    <li class="page-item">
-        <a class="page-link" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
-    </li>
-    {% else %}
-    <li class="page-item active" aria-current="page">
-        <a class="page-link" href="javascript:void(0)">{{ page_num }}</a>
-    </li>
-    {% endif %}
-    {% else %}
-    <li class="disabled">
-        <a class="page-link" href="javascript:void(0)">...</a>
-    </li>
-    {% endif %}
-    {% endfor %}
-    <!-- 다음페이지 -->
-    {% if song_list.has_next %}
-    <li class="page-item">
-        <a class="page-link" data-page="{{ song_list.next_num }}" href="javascript:void(0)">다음</a>
-    </li>
-    {% else %}
-    <li class="page-item disabled">
-        <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
-    </li>
-    {% endif %}
-</ul>
+<div class="pagination-container">
+    <ul class="pagination justify-content-center">
+        <!-- 이전페이지 -->
+        {% if song_list.has_prev %}
+        <li class="page-item" style="list-style: none;">
+            <a class="page-link" data-page="{{ song_list.prev_num }}" href="javascript:void(0)">이전</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled" style="list-style: none;">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
+        </li>
+        {% endif %}
+        <!-- 페이지번호 -->
+        {% for page_num in song_list.iter_pages() %}
+        {% if page_num %}
+        {% if page_num != song_list.page %}
+        <li class="page-item" style="list-style: none;">
+            <a class="page-link" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
+        </li>
+        {% else %}
+        <li class="page-item active" aria-current="page" style="list-style: none;">
+            <a class="page-link" href="javascript:void(0)">{{ page_num }}</a>
+        </li>
+        {% endif %}
+        {% else %}
+        <li class="page-item disabled" style="list-style: none;">
+            <a class="page-link" href="javascript:void(0)">...</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        <!-- 다음페이지 -->
+        {% if song_list.has_next %}
+        <li class="page-item" style="list-style: none;">
+            <a class="page-link" data-page="{{ song_list.next_num }}" href="javascript:void(0)">다음</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled" style="list-style: none;">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
 <!-- 페이징처리 끝 -->
 <br>
 <!-- 마스터피스 랭킹 순서로 노래 출력 시작 -->
 {% if song_ranking %}
 [MasterPiece Ranking]
-    <ul>
-        {% for song in song_ranking %}
-        {% if 5 >= loop.index %}
-        <li>
-            마스터피스 랭킹 '{{ loop.index }}위'<br>
-            <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a>
-            <br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}<br>
-            마스터피스 스코어 {{ song.masterpiece_score }}<br>
-            <img src="{{ song.image_url }}" width="100" height="100"><br>
-        </li>
-        <br>
-        {% endif %}
-        <!-- 더보기 -->
-        {% if loop.index == 6 %}
-        <button id="btn_more">더보기</button>
-        {% endif %}
-        {% endfor %}
-    </ul>
+<div class="song-container">
+    {% for song in song_ranking %}
+    {% if 5 >= loop.index %}
+    <div class="song-item">
+        마스터피스 랭킹 '{{ loop.index }}위'<br>
+        <a href="{{ url_for('song.detail', song_id=song.id) }}">{{ song.name }} - {{ song.singer }}</a><br>  평균★{{ song.average_rate|round2 }}/5.0<br>  평가수 {{ song.review_set|length }}<br>
+        <img src="{{ song.image_url }}" width="100" height="100"><br>
+    </div>
+    {% endif %}
+    {% if loop.index == 6 %}
+    <button id="btn_more">더보기</button>
+    {% endif %}
+    {% endfor %}
+</div>
 {% endif %}
 <!-- 마스터피스 랭킹 순서로 노래 출력 끝 -->
 {% endif %}
@@ -141,6 +144,56 @@ btn_search.addEventListener('click', function() {
 <script>
 document.getElementById("btn_more").addEventListener("click", function() {
     window.location.href = "{{ url_for('song.ranking') }}";
-  });
+});
 </script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .song-container {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .song-item {
+        display: inline-block;
+        width: 200px;
+        height: auto;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        text-align: center;
+    }
+    .pagination-container ul.pagination {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-left: 0;
+        list-style-type: none;
+    }
+    .pagination-container ul.pagination li.page-item {
+        margin: 0 5px;
+    }
+    .pagination-container ul.pagination li.page-item a.page-link {
+        padding: 5px 10px;
+        text-decoration: none;
+        color: black;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+    }
+    .pagination-container ul.pagination li.page-item.active a.page-link {
+        background-color: #007bff;
+        color: white;
+    }
+    .pagination-container ul.pagination li.page-item.disabled a.page-link {
+        color: #6c757d;
+        pointer-events: none;
+    }
+    .pagination justify-content-center {
+        list-style-type: none;
+    }
+</style>
 {% endblock %}

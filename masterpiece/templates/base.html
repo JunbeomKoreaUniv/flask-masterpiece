@@ -4,6 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasterPiece 국내 음반 평점</title>
+    <style>
+        .song-container {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        .song-item {
+            margin: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 150px;
+            text-align: center;
+        }
+        .song-item img {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        .pagination .page-item {
+            margin: 0 5px;
+            flex: 0 0 auto;
+        }
+        .pagination .page-item a {
+            display: block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+        }
+        .pagination .page-item.active a {
+            background-color: #007bff;
+            color: white;
+        }
+        .pagination .page-item.disabled a {
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
     <a href="{{ url_for('main.index') }}">MasterPiece</a>
