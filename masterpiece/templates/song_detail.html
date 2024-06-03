@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<img src="{{ song.image_url }}" width="100" height="100"><br>
+<img src="{{ song.image_url }}" width="200" height="200"><br>
 {{ song.name }} - {{ song.singer }}<br>
 평균★{{ song.average_rate|round2 }}<br>
-마스터피스 스코어 {{ song.masterpiece_score }}
+마스터피스 스코어 {{ song.masterpiece_score }}<br>
+<a href="{{ song.spotify_url }}"><img src="https://cdn.icon-icons.com/icons2/3041/PNG/512/spotify_logo_icon_189218.png" width="50" height="50"></a>
 <br>
 ----------------------------------------------------<br>
 <후기/평점>
@@ -21,6 +22,10 @@
 - {{ review.content }} - ★{{ review.rate }}     ({{ review.user_name }}에 의해 {{ review.write_date|datetime }}에 작성됨)
 <br><br>
 {% endfor %}
+
+{% if not song.review_set %}
+아직 등록된 후기가 없습니다.<br><br>
+{% endif %}
 
 {% if not g.user.user_name in song.review_set|map(attribute='user_name') %}
     <a href="{{ url_for('review.add', song_id=song.id) }}">평점 부여하고 후기 작성하기</a>

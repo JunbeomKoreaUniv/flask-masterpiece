@@ -25,6 +25,9 @@ def _list():
     page = request.args.get('page', type=int, default=1)  # 페이지
     kw = request.args.get('kw', type=str, default='') # 검색어
 
+    songs = db.session.query(Song).all()
+    songs_spotify_id = [song.spotify_id for song in songs]
+
     # 최근 리뷰가 등록된 순서로 정렬하여 song_list에 가장 최근의 리뷰날짜와 함께 저장
     query = (db.session.query(Song.id, Song.spotify_id, Song.name, Song.singer, Song.average_rate, Song.masterpiece_score, Song.image_url, func.count(Review.id), Review.write_date).join(Review).group_by(Song.id).having(Review.write_date == func.max(Review.write_date)).order_by(desc(Review.write_date)))
     song_list = query.paginate(page=page, per_page=5)
@@ -34,7 +37,7 @@ def _list():
 
     if kw:
         search = sp.search(q=kw, limit=50, type="track", market='KR')
-        return render_template("song_list.html", song_list=song_list, song_ranking=song_ranking, search=search)
+        return render_template("song_list.html", songs=songs, songs_spotify_id=songs_spotify_id, song_list=song_list, song_ranking=song_ranking, search=search)
     else:
         return render_template("song_list.html", song_list=song_list, song_ranking=song_ranking)
 
@@ -61,8 +64,9 @@ def add():
     name = request.args.get('name', type=str)
     singer = request.args.get('singer', type=str)
     image_url = request.args.get('image_url', type=str)
+    spotify_url = request.args.get('spotify_url', type=str)
     if spotify_id and name and singer and image_url:
-        song = Song(spotify_id=spotify_id, name=name, singer=singer, image_url=image_url, average_rate=None)
+        song = Song(spotify_id=spotify_id, name=name, singer=singer, image_url=image_url, average_rate=None, spotify_url=spotify_url)
         db.session.add(song)
         db.session.commit()
         added_song = Song.query.order_by(Song.id.desc()).first()

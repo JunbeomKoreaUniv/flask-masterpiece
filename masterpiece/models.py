@@ -10,6 +10,7 @@ class Song(db.Model):
     average_rate = db.Column(db.Float, nullable=True, server_default='0')
     masterpiece_score = db.Column(db.Float)
     image_url = db.Column(db.String(300), nullable=True, server_default='https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg')
+    spotify_url = db.Column(db.String(300), nullable=True, server_default='1')
     # review_set 연동돼있음.
 
 class Review(db.Model):
