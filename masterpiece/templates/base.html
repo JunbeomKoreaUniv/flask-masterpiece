@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MasterPiece 국내 음반 평점</title>
+    <title>MasterPiece</title>
     <style>
         .song-container {
             display: flex;
@@ -54,14 +55,17 @@
     </style>
 </head>
 <body>
-    <a href="{{ url_for('main.index') }}">MasterPiece</a>
+    <a href="{{ url_for('main.index') }}">
+        <img src="{{ url_for('static', filename='masterpiece.png') }}" width="55" height="55">
+    </a>
+        <font size=7>마스터피스 - 국내 음반 평점/후기</font><br>
     {% if g.user %}
         <a href="{{ url_for('auth.logout') }}">로그아웃({{ g.user.user_name }})</a>
     {% else %}
         <a href="{{ url_for('auth.login') }}">로그인</a>
         <a href="{{ url_for('auth.create') }}">회원가입</a>
     {% endif %}
-    <br>----------------------------------------------------<br>
+    <br>------------------------------------------------------<br>
     {% block content %}
     {% endblock %}
     <!-- 자바스크립트 Start -->
