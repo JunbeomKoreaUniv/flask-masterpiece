@@ -2,7 +2,8 @@
 {% block content %}
 <!-- 마스터피스 랭킹 순서로 노래 출력 시작 -->
 {% if song_ranking %}
-[MasterPiece Ranking]
+[MasterPiece Ranking]<br>
+마스터피스 랭킹은 평균평점과 평가수 등을 자체 내장 함수를 통해 종합해 랭킹을 매기는 시스템입니다. 
     <ul>
         {% for song in song_ranking.items %}
         <li>
