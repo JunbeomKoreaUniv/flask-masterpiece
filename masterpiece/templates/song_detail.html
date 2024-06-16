@@ -28,7 +28,7 @@
 {% endif %}
 
 {% if not g.user.user_name in song.review_set|map(attribute='user_name') %}
-    <a href="{{ url_for('review.add', song_id=song.id) }}">평점 부여하고 후기 작성하기</a>
+    <a href="{{ url_for('review.add', song_id=song.id) }}">평점 부여하고 후기 작성하기</a><br>
 {% endif %}
 {% endblock %}
 {% block script %}
