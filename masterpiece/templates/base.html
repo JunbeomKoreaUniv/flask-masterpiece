@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="shortcut icon" href="https://i.ibb.co/HPR1jg7/masterpiece.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MasterPiece</title>
@@ -56,7 +56,7 @@
 </head>
 <body>
     <a href="{{ url_for('main.index') }}">
-        <img src="{{ url_for('static', filename='masterpiece.png') }}" width="55" height="55">
+        <img src="https://i.ibb.co/HPR1jg7/masterpiece.png" width="55" height="55">
     </a>
         <font size=7>마스터피스 - 국내 음반 평점/후기</font><br>
     {% if g.user %}
@@ -65,7 +65,7 @@
         <a href="{{ url_for('auth.login') }}">로그인</a>
         <a href="{{ url_for('auth.create') }}">회원가입</a>
     {% endif %}
-    <br>------------------------------------------------------<br>
+    <br>---------------------------------------<br>
     {% block content %}
     {% endblock %}
     <!-- 자바스크립트 Start -->
